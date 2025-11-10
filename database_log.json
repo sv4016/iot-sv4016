@@ -1,0 +1,155 @@
+[
+    {
+        "id": "bfaeb70aadf294ba",
+        "type": "tab",
+        "label": "Flow 6",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "fdccf1efdf43d85b",
+        "type": "inject",
+        "z": "bfaeb70aadf294ba",
+        "name": "Read Saved Data",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 140,
+        "y": 60,
+        "wires": [
+            [
+                "9482ab18b6cd0c2a"
+            ]
+        ]
+    },
+    {
+        "id": "9482ab18b6cd0c2a",
+        "type": "file in",
+        "z": "bfaeb70aadf294ba",
+        "name": "Read /data/greenhouse_data.json",
+        "filename": "/data/greenhouse_data.json",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "x": 220,
+        "y": 160,
+        "wires": [
+            [
+                "d89b6721b80858fc"
+            ]
+        ]
+    },
+    {
+        "id": "d89b6721b80858fc",
+        "type": "function",
+        "z": "bfaeb70aadf294ba",
+        "name": "",
+        "func": "// Split file into lines and filter non-empty ones\nlet lines = msg.payload.split('\\n').filter(line => line.trim().length > 0);\nlet data = [];\n\n// Parse JSON lines\nfor (let line of lines) {\n  try {\n    const entry = JSON.parse(line);\n    // normalize property names\n    entry.temperature = entry.Temperature || entry.temperature;\n    entry.humidity = entry.Humidity || entry.humidity;\n    entry.timestamp = entry.timestamp || new Date().toISOString();\n    data.push(entry);\n  } catch (e) {\n    node.warn(\"Bad JSON: \" + line);\n  }\n}\n\n// --- Prepare data for the Chart node ---\nlet chartData = [\n  {\n    series: [\"Temperature\", \"Humidity\"],\n    data: [\n      data.map(d => ({ x: new Date(d.timestamp), y: d.temperature })),\n      data.map(d => ({ x: new Date(d.timestamp), y: d.humidity }))\n    ],\n    labels: []\n  }\n];\n\nmsg.payload = chartData;\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 100,
+        "wires": [
+            [
+                "bd493dbd172d9d44",
+                "c896cc54cd695c5c"
+            ]
+        ]
+    },
+    {
+        "id": "bd493dbd172d9d44",
+        "type": "debug",
+        "z": "bfaeb70aadf294ba",
+        "name": "Show Parsed Data",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 790,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "c896cc54cd695c5c",
+        "type": "ui_chart",
+        "z": "bfaeb70aadf294ba",
+        "name": "Temperature & Humidity",
+        "group": "519ac1f198b92047",
+        "order": 1,
+        "width": 12,
+        "height": 6,
+        "label": "Temperature & Humidity",
+        "chartType": "line",
+        "legend": "true",
+        "xformat": "HH:mm",
+        "interpolate": "linear",
+        "nodata": "Click 'Read Saved Data' to load file",
+        "dot": true,
+        "ymin": "0",
+        "ymax": "100",
+        "removeOlder": 0,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "60",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#ff0000",
+            "#00bfff",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 810,
+        "y": 160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "519ac1f198b92047",
+        "type": "ui_group",
+        "name": "Data Retrieval",
+        "tab": "f45e69a81c420417",
+        "order": 1,
+        "disp": true,
+        "width": "12",
+        "collapse": false
+    },
+    {
+        "id": "f45e69a81c420417",
+        "type": "ui_tab",
+        "name": "Historic Data",
+        "icon": "table_chart",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "540c9dd76749d20d",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6"
+        }
+    }
+]

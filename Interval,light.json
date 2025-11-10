@@ -1,0 +1,349 @@
+[
+    {
+        "id": "2c0f12f5a5a20001",
+        "type": "tab",
+        "label": "Set LED Threshold",
+        "disabled": false,
+        "info": "Dynamic LED color control based on temperature thresholds, publishing RGB values to ESP32 over MQTT."
+    },
+    {
+        "id": "c2a321a34de21009",
+        "type": "mqtt in",
+        "z": "2c0f12f5a5a20001",
+        "name": "MQTT In - greenhouse/monitor/data",
+        "topic": "greenhouse/monitor/data",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "7fd23731b2a7e1c3",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 180,
+        "y": 140,
+        "wires": [
+            [
+                "cfd7ee49c95b7298"
+            ]
+        ]
+    },
+    {
+        "id": "cfd7ee49c95b7298",
+        "type": "switch",
+        "z": "2c0f12f5a5a20001",
+        "name": "Check Temperature",
+        "property": "payload.Temperature",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "lt",
+                "v": "18",
+                "vt": "num"
+            },
+            {
+                "t": "btwn",
+                "v": "18",
+                "vt": "num",
+                "v2": "30",
+                "v2t": "num"
+            },
+            {
+                "t": "gt",
+                "v": "30",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 440,
+        "y": 140,
+        "wires": [
+            [
+                "9a31b35ab2c1d157"
+            ],
+            [
+                "d83a6dc1b238f785"
+            ],
+            [
+                "c55e63c1a76d8d2e"
+            ]
+        ]
+    },
+    {
+        "id": "9a31b35ab2c1d157",
+        "type": "change",
+        "z": "2c0f12f5a5a20001",
+        "name": "Cold → Blue",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{\"red\":0,\"green\":0,\"blue\":255}",
+                "tot": "json"
+            }
+        ],
+        "x": 720,
+        "y": 100,
+        "wires": [
+            [
+                "f69b60d4d5f126d7"
+            ]
+        ]
+    },
+    {
+        "id": "d83a6dc1b238f785",
+        "type": "change",
+        "z": "2c0f12f5a5a20001",
+        "name": "Optimal → Green",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{\"red\":0,\"green\":255,\"blue\":0}",
+                "tot": "json"
+            }
+        ],
+        "x": 740,
+        "y": 160,
+        "wires": [
+            [
+                "f69b60d4d5f126d7"
+            ]
+        ]
+    },
+    {
+        "id": "c55e63c1a76d8d2e",
+        "type": "change",
+        "z": "2c0f12f5a5a20001",
+        "name": "Hot → Red",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{\"red\":255,\"green\":0,\"blue\":0}",
+                "tot": "json"
+            }
+        ],
+        "x": 710,
+        "y": 220,
+        "wires": [
+            [
+                "f69b60d4d5f126d7"
+            ]
+        ]
+    },
+    {
+        "id": "f69b60d4d5f126d7",
+        "type": "change",
+        "z": "2c0f12f5a5a20001",
+        "name": "Set Topic for LED Command",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "\"greenhouse/command/display\"",
+                "tot": "jsonata"
+            }
+        ],
+        "x": 1040,
+        "y": 160,
+        "wires": [
+            [
+                "71f7ee5bca4f4c67",
+                "d45c6712579b8f71"
+            ]
+        ]
+    },
+    {
+        "id": "71f7ee5bca4f4c67",
+        "type": "mqtt out",
+        "z": "2c0f12f5a5a20001",
+        "name": "Send LED Color Command",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "broker": "7fd23731b2a7e1c3",
+        "x": 1330,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "d45c6712579b8f71",
+        "type": "debug",
+        "z": "2c0f12f5a5a20001",
+        "name": "Show Sent RGB Command",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 1340,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "c87b2888f10ed48c",
+        "type": "ui_form",
+        "z": "2c0f12f5a5a20001",
+        "name": "Set Reporting Interval",
+        "label": "Set ESP Reporting Interval",
+        "group": "0b2db1734d4d4c8b",
+        "order": 1,
+        "width": 6,
+        "height": 4,
+        "options": [
+            {
+                "label": "Reporting Interval (Seconds)",
+                "value": "Seconds",
+                "type": "number",
+                "required": true
+            }
+        ],
+        "formValue": {
+            "Seconds": ""
+        },
+        "payload": "",
+        "submit": "submit",
+        "cancel": "cancel",
+        "topic": "setInterval",
+        "x": 220,
+        "y": 340,
+        "wires": [
+            [
+                "1c340f1ec636a9cd"
+            ]
+        ]
+    },
+    {
+        "id": "1c340f1ec636a9cd",
+        "type": "switch",
+        "z": "2c0f12f5a5a20001",
+        "name": "Validate Interval",
+        "property": "payload.Seconds",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gte",
+                "v": "1",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 470,
+        "y": 340,
+        "wires": [
+            [
+                "a16a6b6fe2261439"
+            ]
+        ]
+    },
+    {
+        "id": "a16a6b6fe2261439",
+        "type": "change",
+        "z": "2c0f12f5a5a20001",
+        "name": "Format JSON {\"Interval\": value}",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{\"Interval\":payload.Seconds}",
+                "tot": "jsonata"
+            }
+        ],
+        "x": 750,
+        "y": 340,
+        "wires": [
+            [
+                "4a4154481c714387",
+                "365a788c893192ad"
+            ]
+        ]
+    },
+    {
+        "id": "4a4154481c714387",
+        "type": "mqtt out",
+        "z": "2c0f12f5a5a20001",
+        "name": "Send Interval Command",
+        "topic": "greenhouse/command/interval",
+        "qos": "",
+        "retain": "",
+        "broker": "8cf0d9e2ceec83e5",
+        "x": 1040,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "365a788c893192ad",
+        "type": "debug",
+        "z": "2c0f12f5a5a20001",
+        "name": "Show Sent JSON",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 1020,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "7fd23731b2a7e1c3",
+        "type": "mqtt-broker",
+        "name": "test.mosquitto.org",
+        "broker": "test.mosquitto.org",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true
+    },
+    {
+        "id": "0b2db1734d4d4c8b",
+        "type": "ui_group",
+        "name": "ESP Interval Control",
+        "tab": "a2e3c44e13b4c6c7",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "8cf0d9e2ceec83e5",
+        "type": "mqtt-broker",
+        "name": "test.mosquitto.org",
+        "broker": "test.mosquitto.org",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true
+    },
+    {
+        "id": "a2e3c44e13b4c6c7",
+        "type": "ui_tab",
+        "name": "ESP Interval",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "88ab1d00793b4a1d",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6"
+        }
+    }
+]
